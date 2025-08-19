@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Um pedido para o Alex</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts for a nice typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Confetti library for celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* Custom font for the heading */
+        .font-pacifico {
+            font-family: 'Pacifico', cursive;
+        }
+        /* Custom font for the body */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Heartbeat animation */
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .heartbeat {
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+        /* Smooth transition for the 'No' button */
+        #no-button {
+            transition: transform 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-rose-100 to-teal-100">
+
+    <div id="proposal-container" class="min-h-screen flex flex-col items-center justify-center p-4 text-center">
+        <!-- Main proposal card -->
+        <div class="bg-white/80 backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl max-w-md w-full transition-all duration-500">
+            <!-- Heart icon -->
+            <div class="text-rose-500 text-7xl mb-6 heartbeat">
+                ❤️
+            </div>
+            
+            <!-- The big question -->
+            <h1 class="font-pacifico text-4xl md:text-5xl text-gray-800 mb-8">
+                Alex, quer namorar comigo?
+            </h1>
+            
+            <!-- Button container -->
+            <div class="flex justify-center items-center gap-4">
+                <!-- The 'Yes' button -->
+                <button id="yes-button" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
+                    SIM
+                </button>
+                <!-- The 'No' button that will move around -->
+                <button id="no-button" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
+                    NÃO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success message screen (hidden by default) -->
+    <div id="success-message" class="hidden fixed inset-0 bg-gradient-to-r from-rose-100 to-teal-100 flex-col items-center justify-center text-center p-4">
+        <div class="bg-white/80 backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl">
+            <h2 class="font-pacifico text-4xl md:text-5xl text-gray-800">
+                Eu te amo! ❤️
+            </h2>
+            <p class="text-gray-600 mt-4 text-lg">Agora estamos namorando oficialmente!</p>
+        </div>
+    </div>
+
+    <script>
+        // Get references to the HTML elements
+        const yesButton = document.getElementById('yes-button');
+        const noButton = document.getElementById('no-button');
+        const proposalContainer = document.getElementById('proposal-container');
+        const successMessage = document.getElementById('success-message');
+
+        // Event listener for the 'Yes' button
+        yesButton.addEventListener('click', () => {
+            // Hide the proposal container
+            proposalContainer.classList.add('hidden');
+            
+            // Show the success message
+            successMessage.classList.remove('hidden');
+            successMessage.classList.add('flex');
+            
+            // Trigger confetti celebration
+            startConfetti();
+            
+            // Redirect to a special song after a few seconds
+            setTimeout(() => {
+                // Changed the URL to the requested song
+                window.location.href = "https://www.youtube.com/watch?v=izGwDsrQ1eQ";
+            }, 5000); // 5-second delay before redirecting
+        });
+
+        // Function to make the 'No' button move away
+        function moveButton() {
+            const containerRect = document.body.getBoundingClientRect();
+            const buttonRect = noButton.getBoundingClientRect();
+
+            // Calculate maximum possible positions
+            const maxX = containerRect.width - buttonRect.width;
+            const maxY = containerRect.height - buttonRect.height;
+
+            // Generate random positions
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
+            
+            // Apply new position using transform for smooth animation
+            noButton.style.position = 'fixed';
+            noButton.style.left = `${randomX}px`;
+            noButton.style.top = `${randomY}px`;
+        }
+
+        // Add event listeners to the 'No' button for both mouseover and click
+        noButton.addEventListener('mouseover', moveButton);
+        noButton.addEventListener('click', moveButton);
+
+        // --- Confetti Celebration Function ---
+        function startConfetti() {
+            const duration = 5 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+                // since particles fall down, start a bit higher than random
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+            }, 250);
+        }
+    </script>
+
+</body>
+</html>
