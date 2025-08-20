@@ -36,13 +36,43 @@
         }
         /* Smooth transition for the 'No' button */
         #no-button {
-            transition: transform 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+        }
+        /* Fade-in animation for cards */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.7s ease-in-out forwards;
         }
     </style>
 </head>
-<body class="bg-gradient-to-r from-rose-100 to-teal-100">
+<body class="bg-gradient-to-r from-rose-100 to-teal-100 overflow-hidden">
 
-    <div id="proposal-container" class="min-h-screen flex flex-col items-center justify-center p-4 text-center">
+    <!-- Initial Message Container -->
+    <div id="initial-message-container" class="min-h-screen flex flex-col items-center justify-center p-4 text-center">
+        <div class="bg-white/80 backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl max-w-md w-full fade-in">
+            <p class="text-gray-600 text-lg md:text-xl mb-8">Usei minhas habilidades de garoto de programa para fazer esse site e espero que você ame, assim como eu amei fazer. ❤️</p>
+            <button id="start-button" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
+                Começar
+            </button>
+        </div>
+    </div>
+
+    <!-- Container for the introductory cards (initially hidden) -->
+    <div id="intro-cards-container" class="hidden min-h-screen flex-col items-center justify-center p-4 text-center">
+        <div id="intro-card" class="bg-white/80 backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl max-w-md w-full">
+            <h2 id="card-title" class="text-2xl md:text-3xl text-gray-700 font-bold mb-4"></h2>
+            <p id="card-text" class="text-gray-600 text-lg md:text-xl min-h-[120px] flex items-center justify-center"></p>
+            <button id="next-card-button" class="mt-8 bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300">
+                Próximo
+            </button>
+        </div>
+    </div>
+
+    <!-- Main proposal container (initially hidden) -->
+    <div id="proposal-container" class="hidden min-h-screen flex-col items-center justify-center p-4 text-center">
         <!-- Main proposal card -->
         <div class="bg-white/80 backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl max-w-md w-full transition-all duration-500">
             <!-- Heart icon -->
@@ -76,57 +106,90 @@
                 Eu te amo! ❤️
             </h2>
             <p class="text-gray-600 mt-4 text-lg">Agora estamos namorando oficialmente!</p>
+            <!-- Image added here -->
+            <img src="https://i.imgur.com/CWyndy7.png" alt="Dois personagens se beijando com um cupido" class="mt-8 w-48 h-auto mx-auto rounded-lg shadow-md">
         </div>
     </div>
 
     <script>
-        // Get references to the HTML elements
+        // --- Element References ---
+        const initialMessageContainer = document.getElementById('initial-message-container');
+        const startButton = document.getElementById('start-button');
+        const introContainer = document.getElementById('intro-cards-container');
+        const introCard = document.getElementById('intro-card');
+        const cardTitle = document.getElementById('card-title');
+        const cardText = document.getElementById('card-text');
+        const nextCardButton = document.getElementById('next-card-button');
+        
+        const proposalContainer = document.getElementById('proposal-container');
         const yesButton = document.getElementById('yes-button');
         const noButton = document.getElementById('no-button');
-        const proposalContainer = document.getElementById('proposal-container');
         const successMessage = document.getElementById('success-message');
 
-        // Event listener for the 'Yes' button
-        yesButton.addEventListener('click', () => {
-            // Hide the proposal container
-            proposalContainer.classList.add('hidden');
-            
-            // Show the success message
-            successMessage.classList.remove('hidden');
-            successMessage.classList.add('flex');
-            
-            // Trigger confetti celebration
-            startConfetti();
-            
-            // Redirect to a special song after a few seconds
+        // --- Phrases Data ---
+        const phrases = [
+            { title: "7 motivos pelos quais valem a pena se viver:", text: "1. Um verdadeiro companheiro é aquele que te pega pela mão e toca no coração." },
+            { title: "Motivo 2", text: "Quando você chorar eu estarei aqui para enxugar as suas lágrimas." },
+            { title: "Motivo 3", text: "Você pode ser uma pessoa no mundo, mas é o mundo para uma pessoa." },
+            { title: "Motivo 4", text: "Conheço um motel 5 estrelas, quer ir comigo?" },
+            { title: "Motivo 5", text: "Será que seremos oficialmente labubu e bobigods? :(" },
+            { title: "Motivo 6", text: "Um dia a saudade se fará presente para dizer o quanto você é e sempre foi importante." },
+            { title: "Motivo 7", text: "Porque te amo e amo quem sou quando estou contigo." }
+        ];
+
+        let currentCardIndex = 0;
+
+        // --- Functions ---
+
+        // Function to display a card
+        function showCard(index) {
+            introCard.classList.remove('fade-in');
+            // A small delay to allow the removal of the class to register before adding it again
             setTimeout(() => {
-                // Changed the URL to the requested song
-                window.location.href = "https://www.youtube.com/watch?v=izGwDsrQ1eQ";
-            }, 5000); // 5-second delay before redirecting
-        });
+                cardTitle.textContent = phrases[index].title;
+                cardText.textContent = phrases[index].text;
+                introCard.classList.add('fade-in');
+            }, 10);
+        }
+
+        // Function to handle the 'Next' button click
+        function handleNextCard() {
+            currentCardIndex++;
+            if (currentCardIndex < phrases.length) {
+                showCard(currentCardIndex);
+            } else {
+                // Last card was shown, transition to the proposal
+                introContainer.classList.add('hidden');
+                proposalContainer.classList.remove('hidden');
+                proposalContainer.classList.add('flex', 'fade-in');
+            }
+        }
 
         // Function to make the 'No' button move away
         function moveButton() {
             const containerRect = document.body.getBoundingClientRect();
             const buttonRect = noButton.getBoundingClientRect();
-
-            // Calculate maximum possible positions
             const maxX = containerRect.width - buttonRect.width;
             const maxY = containerRect.height - buttonRect.height;
-
-            // Generate random positions
             const randomX = Math.floor(Math.random() * maxX);
             const randomY = Math.floor(Math.random() * maxY);
             
-            // Apply new position using transform for smooth animation
             noButton.style.position = 'fixed';
             noButton.style.left = `${randomX}px`;
             noButton.style.top = `${randomY}px`;
         }
-
-        // Add event listeners to the 'No' button for both mouseover and click
-        noButton.addEventListener('mouseover', moveButton);
-        noButton.addEventListener('click', moveButton);
+        
+        // Function to handle the 'Yes' button click
+        function handleYesClick() {
+            proposalContainer.classList.add('hidden');
+            successMessage.classList.remove('hidden');
+            successMessage.classList.add('flex', 'fade-in');
+            startConfetti();
+            
+            setTimeout(() => {
+                window.location.href = "https://www.youtube.com/watch?v=izGwDsrQ1eQ";
+            }, 5000);
+        }
 
         // --- Confetti Celebration Function ---
         function startConfetti() {
@@ -140,17 +203,29 @@
 
             const interval = setInterval(function() {
                 const timeLeft = animationEnd - Date.now();
-
                 if (timeLeft <= 0) {
                     return clearInterval(interval);
                 }
-
                 const particleCount = 50 * (timeLeft / duration);
-                // since particles fall down, start a bit higher than random
                 confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
                 confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
             }, 250);
         }
+
+        // --- Event Listeners ---
+        startButton.addEventListener('click', () => {
+            initialMessageContainer.classList.add('hidden');
+            introContainer.classList.remove('hidden');
+            introContainer.classList.add('flex');
+            showCard(currentCardIndex); // Show the first card
+        });
+        nextCardButton.addEventListener('click', handleNextCard);
+        yesButton.addEventListener('click', handleYesClick);
+        noButton.addEventListener('mouseover', moveButton);
+        noButton.addEventListener('click', moveButton);
+
+        // --- Initial Load ---
+        // The page now starts with the initial message, so no function call is needed here.
     </script>
 
 </body>
